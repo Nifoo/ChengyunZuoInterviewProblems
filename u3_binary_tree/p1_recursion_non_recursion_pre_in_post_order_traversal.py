@@ -100,14 +100,15 @@ def single_stack_post_order_traverse(rt: TreeNode, l: List):
     h = None
     while stk:
         c = stk[-1]
-        if c.left and h != c.left and h != c.right:
+        if c.left and h != c.left and (h is None or h != c.right):
             # case (1)
             stk.append(c.left)
-        elif c.right and h == rt.left:
+        elif c.right and h != c.right:
             # case (2)
             stk.append(c.right)
         else:
             # case (3)
+            # Process the node
             l.append(stk.pop())
             h = c
 
@@ -135,7 +136,6 @@ if __name__ == "__main__":
     recur_in_order_traverse(rt0, l)
     print(l)
 
-
     l = []
     recur_post_order_traverse(rt0, l)
     print(l)
@@ -149,7 +149,10 @@ if __name__ == "__main__":
     stack_in_order_traverse(rt0, l)
     print(l)
 
-
     l = []
     double_stacks_post_order_traverse(rt0, l)
+    print(l)
+
+    l = []
+    single_stack_post_order_traverse(rt0, l)
     print(l)
