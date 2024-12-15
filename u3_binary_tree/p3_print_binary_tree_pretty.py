@@ -6,11 +6,11 @@ from utils.trees import TreeNode
 UNIT_LEN = 10
 
 
-def print_tree(rt: TreeNode):
+def print_tree_anti_90(rt: TreeNode):
     rev_inorder(rt, '', 0)
 
 
-# right-mid-left traversal
+# right-mid-left traversal (anti-clock-wise 90 degree)
 # 1. To easily determine the relative position of sibling nodes, the best traversal order is like a left-right or right-left scan,
 # which actually is the inorder traversal.
 # 2. By rotating the tree 90 degree, the horizontal 'relative position of sibling nodes' becomes vertical which can
@@ -23,6 +23,27 @@ def rev_inorder(node: TreeNode, prefix, heading_space):
     suf_spc = UNIT_LEN - len(str(node.val)) - 1 - pre_spc
     print(" " * (heading_space * UNIT_LEN) + " " * pre_spc + prefix + str(node.val) + " " * suf_spc)
     rev_inorder(node.left, '\\', heading_space + 1)
+
+
+# left-mid-right traversal (clock-wise 90 degree)
+def print_tree_clockwise_90(node: TreeNode):
+    _inorder(node, '', 1, _get_height(node))
+
+
+def _get_height(node: TreeNode):
+    if not node:
+        return 0
+    return 1 + max(_get_height(node.left), _get_height(node.right))
+
+
+def _inorder(node: TreeNode, prefix, level, total_level):
+    if node is None:
+        return
+    _inorder(node.left, '\\', level+1, total_level)
+    pre_spc = math.floor((UNIT_LEN - 1 - len(str(node.val))) / 2)
+    suf_spc = UNIT_LEN - pre_spc - len(str(node.val)) - 1
+    print( " " * (total_level - level) * UNIT_LEN + " " * pre_spc + str(node.val) + prefix + " " * suf_spc)
+    _inorder(node.right, '/', level+1, total_level)
 
 
 if __name__ == "__main__":
@@ -39,4 +60,6 @@ if __name__ == "__main__":
     rt2.right = rt4
     rt3.right = rt5
 
-    print_tree(rt0)
+    print_tree_anti_90(rt0)
+    print("----------------")
+    print_tree_clockwise_90(rt0)

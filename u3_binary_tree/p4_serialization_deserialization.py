@@ -1,9 +1,9 @@
 # Sol 1: DFS
 # The key point is to denote the boundary of a subtree, which can be achieved by denoting the 'null' nodes.
-# Preorder: 1,2,4,#,3,#,#,
+# Preorder: 0,1,#,#,2,3,#,5,#,#,4,#,#,
 from collections import deque
 
-from u3_binary_tree.p3_print_binary_tree_pretty import print_tree
+from u3_binary_tree.p3_print_binary_tree_pretty import print_tree_anti_90
 from utils.trees import TreeNode
 
 
@@ -81,10 +81,10 @@ if __name__ == "__main__":
     s = serialize(rt0)
     print(s)
     rt_recreated, _ = deserialize(s)
-    print_tree(rt_recreated)
+    print_tree_anti_90(rt_recreated)
 
     # Sol 2
     s2 = serialize_bfs(rt0)
     print(s2)
     rt_recreated2 = deserialize_bfs(s2)
-    print_tree(rt_recreated2)
+    print_tree_anti_90(rt_recreated2)
