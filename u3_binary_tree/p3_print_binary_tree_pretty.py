@@ -6,15 +6,17 @@ from utils.trees import TreeNode
 UNIT_LEN = 10
 
 
+# right-mid-left traversal (anti-clock-wise 90 degree)
+# 1. To easily determine the relative position of sibling nodes, the best traversal order is like a left-right or right-left scan,
+# which actually is the inorder traversal; because without scanning left or right subtree, you won't know where to put the root.
+# If that is the case, let's just rotate the tree in printing as well.
+# 2. By rotating the tree 90 degree, the horizontal 'relative position of sibling nodes' becomes vertical which can
+# be displayed by switching a new line, where each line will only contain one node.
+# 3. And the position for a node in each row simply relies on its level in the tree.
 def print_tree_anti_90(rt: TreeNode):
     rev_inorder(rt, '', 0)
 
 
-# right-mid-left traversal (anti-clock-wise 90 degree)
-# 1. To easily determine the relative position of sibling nodes, the best traversal order is like a left-right or right-left scan,
-# which actually is the inorder traversal.
-# 2. By rotating the tree 90 degree, the horizontal 'relative position of sibling nodes' becomes vertical which can
-# be displayed by switching a new line.
 def rev_inorder(node: TreeNode, prefix, heading_space):
     if node is None:
         return
@@ -47,18 +49,7 @@ def _inorder(node: TreeNode, prefix, level, total_level):
 
 
 if __name__ == "__main__":
-    rt0 = TreeNode(0, None, None)
-    rt1 = TreeNode(1, None, None)
-    rt2 = TreeNode(2, None, None)
-    rt3 = TreeNode(3, None, None)
-    rt4 = TreeNode(4, None, None)
-    rt5 = TreeNode(5, None, None)
-
-    rt0.left = rt1
-    rt0.right = rt2
-    rt2.left = rt3
-    rt2.right = rt4
-    rt3.right = rt5
+    rt0 = TreeNode.build_an_example_tree()
 
     print_tree_anti_90(rt0)
     print("----------------")

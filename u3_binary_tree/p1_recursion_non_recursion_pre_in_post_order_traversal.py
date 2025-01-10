@@ -114,18 +114,7 @@ def single_stack_post_order_traverse(rt: TreeNode, l: List):
 
 
 if __name__ == "__main__":
-    rt0 = TreeNode(0, None, None)
-    rt1 = TreeNode(1, None, None)
-    rt2 = TreeNode(2, None, None)
-    rt3 = TreeNode(3, None, None)
-    rt4 = TreeNode(4, None, None)
-    rt5 = TreeNode(5, None, None)
-
-    rt0.left = rt1
-    rt0.right = rt2
-    rt2.left = rt3
-    rt2.right = rt4
-    rt3.right = rt5
+    rt0 = TreeNode.build_an_example_tree()
 
     # Recursion
     l = []
