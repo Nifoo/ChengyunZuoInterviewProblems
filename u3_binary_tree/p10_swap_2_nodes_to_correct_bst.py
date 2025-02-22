@@ -39,6 +39,30 @@ def find_swapped_nodes(rt: Res, res: List[Res]):
 
 
 def swap_nodes(n1: Res, n2: Res):
+    # If n1 and n2 are parent-child relationship
+    if n1.parent == n2.node or n2.parent == n1.node:
+        if n1.parent == n2.node:
+            p, c = n2.node, n1.node
+            pp = n2.parent
+        else:
+            p, c = n1.node, n2.node
+            pp = n1.parent
+        pl, pr = p.left, p.right
+        cl, cr = c.left, c.right
+        # Put c as child of pp
+        if pp.left == p:
+            pp.left = c
+        else:
+            pp.right = c
+        # Put p at original c position
+        p.left, p.right = cl, cr
+        # Put c at original p potions based on it was p's left or right child
+        if pl == c:
+            c.left, c.right = p, pr
+        else:
+            c.left, c.right = pl, p
+        return
+
     n1cl, n1cr = n1.node.left, n1.node.right
     n2cl, n2cr = n2.node.left, n2.node.right
     n1.node.left, n1.node.right = n2cl, n2cr
@@ -98,3 +122,13 @@ if __name__ == "__main__":
     rt = find_and_reset(nd5)
     print_tree_anti_90(rt)
 
+    print("Case 3")
+    _reset_nodes([nd7, nd4, nd5, nd3, nd6, nd2])
+    _last_rt = None
+    # Swap 3, 5 (parent-child pair)
+    nd3.left, nd3.right = nd5, nd6
+    nd5.left, nd5.right = nd2, nd4
+    nd6.right = nd7
+    print_tree_anti_90(nd3)
+    rt = find_and_reset(nd3)
+    print_tree_anti_90(rt)
