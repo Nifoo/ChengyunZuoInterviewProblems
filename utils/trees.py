@@ -16,6 +16,13 @@ class TreeNode:
 
     @staticmethod
     def build_an_example_tree():
+        #                        /4
+        #              /2
+        #                                  /5
+        #                        \3
+        #    0
+        #              \1
+
         rt0 = TreeNode(0, None, None)
         rt1 = TreeNode(1, None, None)
         rt2 = TreeNode(2, None, None)

@@ -5,39 +5,38 @@ Given String S and W. Return the 1st position (or all positions) t in S where S[
 KMP:
 Ref: https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
 
-1. Construct a partial match table T based on the pattern string W,
-so that for each position i in W, T[i] is the largest position that not equal to i and W[..T[i]-1] matches with W[..i-1].
-(which in practice means, if we try to match a string with w, when it doesn't match at W[i], then it should continue checking W[T[i]]).
-To construct this table, basically it's like compare 2 W (W, W'), keep the prefix matched and current positions mismatched,
-reusing the known results before to keep moving W' to achieve that state.
+(https://blog.csdn.net/qq_43869106/article/details/128753527)
 
-2. With T known, move 2 pointers in S and W and compare, if mismatch at S[p], W[q],
-then move W so that S[p] corresponds to W[T[q]] then keep comparing at these 2 positions.
+1. longest prefix suffix table 'next[]' :
+Construct a next[] table for pattern string W. next[i] indicates the longest identical substring as both prefix and suffix for string W[0:i+1].
+So if W[i+1] doesn't match in a comparison, we should move cursor to W[next[i]].
+When to derive next[] table, maintain p, q pointing to end of potential prefix, suffix in a loop:
+If W[p]!=W[q], keep moving cursor p backwards p=next[p-1] (i.e. scanning prefixes ended with W[p-1])
+until W[p]==W[q] or p out of range, then next[q]=p+1 or next[q]=0, respectively.
+
+
+2. With next[] known, move 2 pointers in S and W and compare, if mismatch at S[p], W[q],
+then move W so that S[p] corresponds to W[next[q-1]] then keep comparing at these 2 positions.
 """
 
 
-def gen_partial_match(w: str):
+def gen_longest_prefix_suffix_next_table(w: str):
     """
-    construct a partial match table t for given string w
+    construct a longest_prefix_suffix_next table next for given string w
     :param w:
     :return:
     """
-    t = [0] * (len(w) + 1)
-    t[0] = -1
-    q = 0
-    for p in range(1, len(w)):
-        if w[p] == w[q]:
-            t[p] = t[q]
+    nxt = [0] * len(w)
+    p = 0  # end of prefix
+    for q in range(1, len(w)):  # end of suffix
+        while w[p] != w[q] and p > 0:
+            p = nxt[p-1]
+        if w[q] == w[p]:
+            nxt[q] = p + 1
+            p += 1
         else:
-            t[p] = q
-            # Move q to achieve the state that prefix match w[..p] and w[..q]
-            while q >= 0 and w[p] != w[q]:
-                q = t[q]
-        # Now w[..p] and w[..q] match, move both cursor the next
-        q += 1
-    # Only needed when we want to find all matched w in s
-    t[len(w)] = q
-    return t
+            nxt[q] = 0
+    return nxt
 
 
 def kmp_match(s: str, w: str):
@@ -47,22 +46,24 @@ def kmp_match(s: str, w: str):
     :param w: pattern str
     :return:
     """
-    t = gen_partial_match(w)
+    nxt = gen_longest_prefix_suffix_next_table(w)
+    print(nxt)
     p = q = 0
     res = []
     while p < len(s) and p + len(w) - q <= len(s):
         if s[p] == w[q]:
-            p += 1
             q += 1
+            p += 1
             if q == len(w):
-                # if only 1st matched position is needed, then return p-len(w) directly
+                # if only 1st matched position is needed, return p-len(w) directly; otherwise, append in a list
                 res.append(p-len(w))
-                q = t[q]
+                q = nxt[q-1]
         else:
-            q = t[q]
-            if q == -1:
+            if q == 0:
+                # move to next p
                 p += 1
-                q = 0
+            else:
+                q = nxt[q-1]
     return res
 
 
