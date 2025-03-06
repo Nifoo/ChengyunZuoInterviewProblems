@@ -1,44 +1,7 @@
 from utils.trees import TreeNode
 
-# This finds the max bst 'EMBEDDED' in the rt Tree, its leaves don't have to be the leaf nodes of rt Tree.
-# Return the size of the max subtree under the rt (not rooted at rt),
-# the size of max subtree rooted at rt, its leftest, rightest node values.
-# then max_sub root value
-def find_max_bst_embedded(rt: TreeNode):
-    if not rt:
-        return (0, 0, None, None, None)
-    max_left_sub, max_left, ll, lr, max_left_rt_v = find_max_bst_embedded(rt.left)
-    max_right_sub, max_right, rl, rr, max_right_rt_v = find_max_bst_embedded(rt.right)
 
-    # rooted at rt
-    max_rt = 1
-    max_rt_l = max_rt_r = rt.val
-    if max_left and lr < rt.val:
-        max_rt += max_left
-        max_rt_l = ll
-    if max_right and rl > rt.val:
-        max_rt += max_right
-        max_rt_r = rr
-
-    # not rooted at rt
-    max_non_rt, max_non_rt_rt_v = find_the_max([
-        (max_left_sub, max_left_rt_v), (max_left, rt.left.val if rt.left else None),
-        (max_right_sub, max_right_rt_v), (max_right, rt.right.val if rt.right else None)
-    ])
-
-    return (max_non_rt, max_rt, max_rt_l, max_rt_r, max_non_rt_rt_v)
-
-
-# rt_sz: list[(size, rt val)]
-def find_the_max(sz_rts):
-    max_sz_rt = sz_rts[0]
-    for i in sz_rts:
-        if i[0] is not None and i[0]>max_sz_rt[0]:
-            max_sz_rt = i
-    return max_sz_rt
-
-
-# Similar to above, but this finds subtree whose leaf nodes are also rt Tree's leaf nodes
+# This finds subtree whose leaf nodes are also rt Tree's leaf nodes
 # (i.e. cut off is not allowed, the result subtree should exhaust all nodes below)
 # Return the size of the max subtree under the rt (may or may not be rooted at rt, but can be determined by r val),
 # its leftest, rightest node values.
@@ -100,15 +63,5 @@ if __name__ == "__main__":
     nd4.left, nd4.right = nd2, nd5
     nd14.left, nd14.right = nd11, nd15
 
-    # Understanding 1
-    max_sub, max_rt, max_rt_l, max_rt_r, max_sub_rt_v = find_max_bst_embedded(nd6)
-    if max_sub > max_rt:
-        print(max_sub, max_sub_rt_v)
-    else:
-        print(max_rt, nd6.val)
-
-    # Understanding 2 (which is the same as the book)
     max_sub, max_rt_l, max_rt_r, max_sub_rt_v = find_max_bst_to_the_leaves(nd6)
     print(max_sub, max_sub_rt_v)
-
-

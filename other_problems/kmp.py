@@ -46,8 +46,9 @@ def kmp_match(s: str, w: str):
     :param w: pattern str
     :return:
     """
+    print(f"Start finding {w} in {s}")
     nxt = gen_longest_prefix_suffix_next_table(w)
-    print(nxt)
+    print(f"longest prefix sufix table nxt={nxt}")
     p = q = 0
     res = []
     while p < len(s) and p + len(w) - q <= len(s):
