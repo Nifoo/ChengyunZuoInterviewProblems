@@ -1,3 +1,4 @@
+from u3_binary_tree.p3_print_binary_tree_pretty import print_tree_anti_90
 from utils.trees import TreeNode
 
 
@@ -29,8 +30,14 @@ def recreate_bst(l: list[int]):
     m = i
     rt = TreeNode(v)
     rt.left = recreate_bst(l[:m])
-    rt.right = recreate_bst(l[m+1:])
+    rt.right = recreate_bst(l[m:-1])
     return rt
 
 
 if __name__ == "__main__":
+    arr = [2, 1, 3, 6, 5, 7, 4]
+    isBST = verify_bst_post_order_traversal(arr)
+    print(isBST)
+    if isBST:
+        rt = recreate_bst(arr)
+        print_tree_anti_90(rt)
