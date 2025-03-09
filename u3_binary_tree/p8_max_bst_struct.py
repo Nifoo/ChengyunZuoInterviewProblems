@@ -1,44 +1,71 @@
-# This finds the max bst 'EMBEDDED' in the rt Tree, its leaves don't have to be the leaf nodes of rt Tree.
-# Return the size of the max subtree under the rt (not rooted at rt),
-# the size of max subtree rooted at rt, its leftest, rightest node values.
-# then max_sub root value
+from typing import Dict, List
+
+from u3_binary_tree.p3_print_binary_tree_pretty import print_tree_anti_90
 from utils.trees import TreeNode
 
 
-# TODO: This is wrong. Func should take a (left, right) range as input;
-#  when searching left/right sub structure, the current root and the given (left, right) range should be passed in.
-def find_max_bst_embedded(rt: TreeNode):
+def find_max_bst_embedded(rt: TreeNode, bst_cnt: Dict[TreeNode, List[int]], max_bst_size, max_bst_root) -> (int, TreeNode):
+    """
+    This finds the max bst 'EMBEDDED' in the rt Tree, its leaves don't have to be the leaf nodes of rt Tree.
+    1. It's easy to achieve in O(n^2): go through each node, expand from the node to get max BST.
+    2. Here's the solution to achieve in O(n): post-traverse the tree, for each node rt, maintain BST topo contribute size count (l, r)
+    to represent with the rt as root, how many valid nodes can rt's left/right subtree contribute respectively.
+    So the tricky part is when we have topo contribute size for rooted at rt_l, rooted at rt_r, how to transfer to rooted at rt.
+    We need go through the right boundary of rt_l and left boundary of rt_r until the node is out of range (> or < rt),
+    then cut off and then update the size back through the path (in fact, no need to update the whole path, because only the rt.l, rt.r will be used later).
+    Returns updated max_bst_size, max_bst_root
+    :param rt:
+    :param bst_cnt: bst_cnt[treeNode][0], bat_cnt[treeNode][1]: treeNode's left/right BST topo contribute size
+    :param max_bst_size: current max bst size
+    :param max_bst_root: the root of the current max bst
+    """
+    bst_cnt[rt] = [0, 0]
     if not rt:
-        return (0, 0, None, None, None)
-    max_left_sub, max_left, ll, lr, max_left_rt_v = find_max_bst_embedded(rt.left)
-    max_right_sub, max_right, rl, rr, max_right_rt_v = find_max_bst_embedded(rt.right)
+        return max_bst_size, max_bst_root
 
-    # rooted at rt
-    max_rt = 1
-    max_rt_l = max_rt_r = rt.val
-    if max_left and lr < rt.val:
-        max_rt += max_left
-        max_rt_l = ll
-    if max_right and rl > rt.val:
-        max_rt += max_right
-        max_rt_r = rr
+    max_bst_size, max_bst_root = find_max_bst_embedded(rt.left, bst_cnt, max_bst_size, max_bst_root)
+    max_bst_size, max_bst_root = find_max_bst_embedded(rt.right, bst_cnt, max_bst_size, max_bst_root)
+    # Now we have BST topo contribute size count for rooted at rt.left, rt.right
+    # left subtree's right boundary
+    if rt.left:
+        if rt.left.val > rt.val:
+            # Cut off l_r
+            rt.left = None
+        else:
+            p, l_r = rt.left, rt.left.right
+            while l_r and l_r.val < rt.val:
+                p = l_r
+                l_r = l_r.right
+            # Cut off l_r, update topo contribute at rt.left
+            if l_r:
+                bst_cnt[rt.left][1] -= bst_cnt[l_r][0] + bst_cnt[l_r][1] + 1
+                p.right = None
 
-    # not rooted at rt
-    max_non_rt, max_non_rt_rt_v = find_the_max([
-        (max_left_sub, max_left_rt_v), (max_left, rt.left.val if rt.left else None),
-        (max_right_sub, max_right_rt_v), (max_right, rt.right.val if rt.right else None)
-    ])
+    # right subtree's left boundary
+    if rt.right:
+        if rt.right.val < rt.val:
+            # Cut off l_r
+            rt.right = None
+        else:
+            p, r_l = rt.right, rt.right.left
+            while r_l and r_l.val > rt.val:
+                p = r_l
+                r_l = r_l.left
+            # Cut off r_l, update topo contribute at rt.right
+            if r_l:
+                bst_cnt[rt.right][0] -= bst_cnt[r_l][0] + bst_cnt[r_l][1] + 1 if r_l else 0
+                p.left = None
 
-    return (max_non_rt, max_rt, max_rt_l, max_rt_r, max_non_rt_rt_v)
+    if rt.left:
+        bst_cnt[rt][0] = bst_cnt[rt.left][0] + bst_cnt[rt.left][1] + 1
+    if rt.right:
+        bst_cnt[rt][1] = bst_cnt[rt.right][0] + bst_cnt[rt.right][1] + 1
 
-
-# rt_sz: list[(size, rt val)]
-def find_the_max(sz_rts):
-    max_sz_rt = sz_rts[0]
-    for i in sz_rts:
-        if i[0] is not None and i[0]>max_sz_rt[0]:
-            max_sz_rt = i
-    return max_sz_rt
+    bst_size_rt = bst_cnt[rt][0] + bst_cnt[rt][1] + 1
+    if bst_size_rt > max_bst_size:
+        return bst_size_rt, rt
+    else:
+        return max_bst_size, max_bst_root
 
 
 if __name__ == "__main__":
@@ -66,8 +93,10 @@ if __name__ == "__main__":
     nd4.left, nd4.right = nd2, nd5
     nd14.left, nd14.right = nd11, nd15
 
-    max_sub, max_rt, max_rt_l, max_rt_r, max_sub_rt_v = find_max_bst_embedded(nd6)
-    if max_sub > max_rt:
-        print(max_sub, max_sub_rt_v)
-    else:
-        print(max_rt, nd6.val)
+    print_tree_anti_90(nd6)
+    bst_cnt = {}
+    max_bst_size, max_bst_root = find_max_bst_embedded(nd6, bst_cnt, 0, None)
+    print("max_bst_size = ", max_bst_size)
+    print_tree_anti_90(max_bst_root)
+    for k, v in bst_cnt.items():
+        print(k, v)
